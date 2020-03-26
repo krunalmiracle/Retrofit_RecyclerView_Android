@@ -24,7 +24,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class MainActivity extends AppCompatActivity {
-
+    List<Repo> result;
     private RecyclerView recyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager layoutManager;
@@ -35,22 +35,12 @@ public class MainActivity extends AppCompatActivity {
 
         //Implementing RecyclerView
         recyclerView = findViewById(R.id.my_recycler_view);
-        // use this setting to
-        // improve performance if you know that changes
-        // in content do not change the layout size
-        // of the RecyclerView
+        // use this setting to improve performance if you know that changes
+        // in content do not change the layout size of the RecyclerView
         recyclerView.setHasFixedSize(false);
         // use a linear layout manager
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
-        List<String> input = new ArrayList<>();
-        for (int i = 0; i < 100; i++) {
-            input.add("Test" + i);
-        }// define an adapter
-        mAdapter = new MyAdapter(input);
-        recyclerView.setAdapter(mAdapter);
-
-
     }
     public void onButtonClick(View view) {
         //Retrofit Implementation on Button Press
@@ -84,12 +74,14 @@ public class MainActivity extends AppCompatActivity {
                 Toast toast= Toast.makeText(MainActivity.this,"Response Ok",Toast.LENGTH_SHORT);
                 toast.show();
                 String res_str = "";
-                List<Repo> result = response.body();
+                 MainActivity.this.result = response.body();
                 assert result != null;
                 for (Repo r:result) {
                     res_str = r.toString() + "\n" + res_str;
                 }
                 //textView.setText(res_str);
+                mAdapter = new MyAdapter(result);
+                recyclerView.setAdapter(mAdapter);
             }
 
             @Override

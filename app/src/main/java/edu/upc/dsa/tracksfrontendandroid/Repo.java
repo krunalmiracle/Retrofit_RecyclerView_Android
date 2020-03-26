@@ -1,31 +1,33 @@
 package edu.upc.dsa.tracksfrontendandroid;
 
+
+
 public class Repo {
     String id;
     String name;
     String full_name;
 
-    public String getid() {
+    public String getId() {
         return id;
     }
 
-    public void setid(String id) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public String getname() {
+    public String getName() {
         return name;
     }
 
-    public void setname(String name) {
+    public void setName(String name) {
         this.name = name;
     }
 
-    public String getfull_name() {
+    public String getFull_name() {
         return full_name;
     }
 
-    public void setfullname(String fullname) {
+    public void setFull_name(String fullname) {
         this.full_name = fullname;
     }
 
