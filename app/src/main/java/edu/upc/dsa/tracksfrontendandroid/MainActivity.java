@@ -2,6 +2,7 @@ package edu.upc.dsa.tracksfrontendandroid;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -54,10 +55,11 @@ public class MainActivity extends AppCompatActivity {
     public void onButtonClick(View view) {
         //Retrofit Implementation on Button Press
         Button button1 = findViewById(R.id.button);
-        final TextView textView = findViewById(R.id.textView);
+        //final TextView textView = findViewById(R.id.textView);
         Toast toast= Toast.makeText(MainActivity.this,"Button Pressed!",Toast.LENGTH_SHORT);
         toast.show();
-        textView.setText("Button Pressed!");
+        Intent editTrackActivity = new Intent(getApplicationContext(), EditTrackActivity.class);
+        startActivity(editTrackActivity);
         //Retrofit Implementation
         //Adding Interceptor
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
@@ -87,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
                 for (Repo r:result) {
                     res_str = r.toString() + "\n" + res_str;
                 }
-                textView.setText(res_str);
+                //textView.setText(res_str);
             }
 
             @Override
