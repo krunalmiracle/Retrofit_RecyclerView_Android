@@ -1,15 +1,20 @@
 package edu.upc.dsa.tracksfrontendandroid;
 
+import android.content.Context;
+import android.content.Intent;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import java.util.List;
 
-public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder>  {
+import static androidx.core.content.ContextCompat.startActivity;
+
+public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
 
     private List<String> values;
 
@@ -66,10 +71,19 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder>  {
         final String name = values.get(position);
         final int pos = holder.getLayoutPosition();
         holder.txtHeader.setText(name);
-        holder.txtHeader.setOnClickListener(new OnClickListener() {
+        holder.txtHeader.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
-            public void onClick(View v) {
+            public boolean onLongClick(View v) {
+                //New View to edit Current Track
+                //Launches a new activity to edit the current view
+                Context context = v.getContext(); //View Already contains our Context of Main activity
+                EditTrackActivity editTrackActivity = new EditTrackActivity();
+                editTrackActivity.CompleteFieldsAndSaveParameters("123","Yellow Mellow","Kruskechi");
+                Intent intent = new Intent(context,editTrackActivity.getClass() );
+                context.startActivity(intent);
+                editTrackActivity.ShowToast(context);
                 remove(values.indexOf(name));
+                return true;
             }
         });
 

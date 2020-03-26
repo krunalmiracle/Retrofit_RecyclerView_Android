@@ -37,6 +37,7 @@
                 android:id="@+id/my_recycler_view"
                 android:layout_width="fill_parent"
                 android:layout_height="match_parent"
+                android:longClickable="true"
                 android:scrollbars="vertical" />
         </TableRow>
     </LinearLayout>

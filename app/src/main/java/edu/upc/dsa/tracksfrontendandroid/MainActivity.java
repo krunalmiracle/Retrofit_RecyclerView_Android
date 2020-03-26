@@ -58,8 +58,8 @@ public class MainActivity extends AppCompatActivity {
         //final TextView textView = findViewById(R.id.textView);
         Toast toast= Toast.makeText(MainActivity.this,"Button Pressed!",Toast.LENGTH_SHORT);
         toast.show();
-        Intent editTrackActivity = new Intent(getApplicationContext(), EditTrackActivity.class);
-        startActivity(editTrackActivity);
+        //Intent editTrackActivity = new Intent(getApplicationContext(), EditTrackActivity.class);
+        //startActivity(editTrackActivity);
         //Retrofit Implementation
         //Adding Interceptor
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
