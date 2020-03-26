@@ -3,4 +3,5 @@
     <string name="modify_button">MODIFY</string>
     <string name="cancel_button" tools:ignore="ButtonCase">CANCEL</string>
     <string name="delete_button">DELETE</string>
+    <string name="add_button">ADD</string>
 </resources>

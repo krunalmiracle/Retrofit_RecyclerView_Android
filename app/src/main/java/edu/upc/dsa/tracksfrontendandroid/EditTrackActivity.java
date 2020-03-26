@@ -7,18 +7,23 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 public class EditTrackActivity extends AppCompatActivity {
 
     private String id ="";
+    private int position;
     private String track_title ="";
     private String singer ="";
     private String speed = "1x";
     public TextView IdTextView ;
     public TextView TrackNameTextView ;
     public TextView AuthorTextView ;
+    public Button AddButton;
+    public Button ModifyButton;
+    private boolean aBooleanAddTrack= false;
     private static EditTrackActivity _instance;
     public EditTrackActivity() {
     }
@@ -42,24 +47,21 @@ public class EditTrackActivity extends AppCompatActivity {
         IdTextView = this.findViewById(R.id.editText6);
         TrackNameTextView = this.findViewById(R.id.editText3);
         AuthorTextView = this.findViewById(R.id.editText4);
-
+        AddButton = this.findViewById(R.id.button3);
+        ModifyButton = this.findViewById(R.id.button2);
         //Getting the Values passed from the Recycler View Adapter class
         Intent intent = getIntent();
         this.id = intent.getStringExtra("TRACK_ID");
+        this.position = intent.getIntExtra("LIST_POSITION",-1);
         this.track_title = intent.getStringExtra("TRACK_TITLE");
         this.singer = intent.getStringExtra("TRACK_SINGER");
+        aBooleanAddTrack = intent.getBooleanExtra("ADD_TRACK",false);
+        //IF ADD TRACK,THAN MODIFIED BUTTON INVISIBLE OTHERWISE ADD BUTTON INVISIBLE
+        if(aBooleanAddTrack){ ModifyButton.setVisibility(View.INVISIBLE);}
+        else{AddButton.setVisibility(View.INVISIBLE);}
         updateEditFields();
     }
 
-    public void mfillFields(String Id, String Title, String Singer, String Speed)
-    {
-        this.id = Id; this.track_title = Title; this.singer = Singer ; this.speed = Speed;
-    }
-    public void mfillFields(String Id, String Title, String Singer)
-    {
-        this.id = Id; this.track_title = Title; this.singer = Singer ;
-
-    }
     public String getId() {
         return id;
     }
@@ -98,22 +100,23 @@ public class EditTrackActivity extends AppCompatActivity {
         return "Track [id="+id+", title=" + track_title + ", singer=" + singer +", speed="+ speed +"]";
     }
     public void onButtonClickCancel(View view) {
-        Toast toast= Toast.makeText(EditTrackActivity.this,"Button Pressed Cancel inside Edit Track!",Toast.LENGTH_SHORT);
-        toast.show();
-        this.finish();
-    }
-    public void onButtonClickDelete(View view) {
-        Toast toast= Toast.makeText(EditTrackActivity.this,"Button Pressed Delete inside Edit Track!",Toast.LENGTH_SHORT);
-        toast.show();
+        Intent resultIntent = new Intent();
+        resultIntent.putExtra("TRACK_ID",this.id);
+        resultIntent.putExtra("ModifiedTracksSinger",this.singer);
+        resultIntent.putExtra("TRACK_TITLE",this.track_title);
+        resultIntent.putExtra("LIST_POSITION",this.position);
+        resultIntent.putExtra("ADD_TRACK",this.position);
+        setResult(RESULT_CANCELED,resultIntent);
+        finish();
     }
     public void onButtonClickModify(View view) {
-        Toast toast= Toast.makeText(EditTrackActivity.this,"Button Pressed Modify inside Edit Track!",Toast.LENGTH_SHORT);
-        toast.show();
-    }
-
-    public void ShowToast(Context context){
-        String Txt = "Id:"+id+",Singer="+singer+",speed="+speed;
-        Toast toast= Toast.makeText(context,Txt,Toast.LENGTH_SHORT);
-        toast.show();
+        Intent resultIntent = new Intent();
+        resultIntent.putExtra("TRACK_ID",this.id);
+        resultIntent.putExtra("ModifiedTracksSinger",this.singer);
+        resultIntent.putExtra("TRACK_TITLE",this.track_title);
+        resultIntent.putExtra("LIST_POSITION",this.position);
+        resultIntent.putExtra("ADD_TRACK",this.position);
+        setResult(RESULT_OK,resultIntent);
+        finish();
     }
 }
