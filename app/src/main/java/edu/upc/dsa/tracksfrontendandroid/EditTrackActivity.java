@@ -100,34 +100,27 @@ public class EditTrackActivity extends AppCompatActivity {
     }
     public void onButtonClickCancel(View view) {
         Intent resultIntent = new Intent();
-        /*      NO NEED TO SEND DATA BACK!
-        resultIntent.putExtra("TRACK_ID",this.id);
-        resultIntent.putExtra("ModifiedTracksSinger",this.singer);
-        resultIntent.putExtra("TRACK_TITLE",this.track_title);
-        resultIntent.putExtra("LIST_POSITION",this.position);
-        resultIntent.putExtra("ADD_TRACK",this.position);
-        */
         setResult(RESULT_CANCELED,resultIntent);
         finish();
     }
     public void onButtonClickModify(View view) {
         Intent resultIntent = new Intent();
-        resultIntent.putExtra("RETRIEVE_TRACK_ID",id);
-        resultIntent.putExtra("RETRIEVE_TRACK_SINGER",singer);
-        resultIntent.putExtra("RETRIEVE_TRACK_TITLE",track_title);
-        resultIntent.putExtra("RETRIEVE_LIST_POSITION",position);
-        resultIntent.putExtra("RETRIEVE_ADD_TRACK",aBooleanAddTrack);
+        resultIntent.putExtra("RETRIEVE_TRACK_ID",EditTrackActivity.this.IdTextView.getText().toString());
+        resultIntent.putExtra("RETRIEVE_TRACK_SINGER",EditTrackActivity.this.AuthorTextView.getText().toString());
+        resultIntent.putExtra("RETRIEVE_TRACK_TITLE",EditTrackActivity.this.TrackNameTextView.getText().toString());
+        resultIntent.putExtra("RETRIEVE_LIST_POSITION",EditTrackActivity.this.position);
+        resultIntent.putExtra("RETRIEVE_ADD_TRACK",EditTrackActivity.this.aBooleanAddTrack);
         setResult(RESULT_OK,resultIntent);
         finish();
     }
     public void onButtonClickAdd(View view){
         //Add new Track
         Intent resultIntent = new Intent();
-        resultIntent.putExtra("RETRIEVE_TRACK_ID",this.IdTextView.getText());
-        resultIntent.putExtra("RETRIEVE_TRACK_SINGER",this.AuthorTextView.getText());
-        resultIntent.putExtra("RETRIEVE_TRACK_TITLE",this.TrackNameTextView.getText());
-        resultIntent.putExtra("RETRIEVE_LIST_POSITION",position);
-        resultIntent.putExtra("RETRIEVE_ADD_TRACK",this.aBooleanAddTrack);
+        resultIntent.putExtra("RETRIEVE_TRACK_ID",EditTrackActivity.this.IdTextView.getText().toString());
+        resultIntent.putExtra("RETRIEVE_TRACK_SINGER",EditTrackActivity.this.AuthorTextView.getText().toString());
+        resultIntent.putExtra("RETRIEVE_TRACK_TITLE",EditTrackActivity.this.TrackNameTextView.getText().toString());
+        resultIntent.putExtra("RETRIEVE_LIST_POSITION",EditTrackActivity.this.position);
+        resultIntent.putExtra("RETRIEVE_ADD_TRACK",EditTrackActivity.this.aBooleanAddTrack);
         setResult(RESULT_OK,resultIntent);
         finish();
     }

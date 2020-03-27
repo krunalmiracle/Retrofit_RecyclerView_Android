@@ -7,8 +7,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import okhttp3.OkHttpClient;
@@ -28,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
     //As we added new methods inside our custom Adapter, we need to create our own type of adapter
     private MyAdapter mAdapter;
     private static int MODIFY_TRACK = 1;
+    private boolean aBooleanServedAlready =false;
     private RecyclerView.LayoutManager layoutManager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +48,14 @@ public class MainActivity extends AppCompatActivity {
     }
     //Inserts Item in List
     public void insertItem(Repo repo){
-        Repo_List.add(repo);
+        if(Repo_List!=null) {
+            Repo_List.add(repo);
+        }
+        else
+        {
+            Repo_List = new ArrayList<>();
+            Repo_List.add(repo);
+        }
         int pos = Repo_List.size()-1;
         mAdapter.notifyDataSetChanged();
     }
@@ -62,8 +72,19 @@ public class MainActivity extends AppCompatActivity {
     }
     //Add Track New Activity
     public void onButtonAddTracksClick(View view){
-        int tmp_uselessPosition = -1;
-        LaunchEditActivity(tmp_uselessPosition,true);
+        if(aBooleanServedAlready) {
+            int tmp_uselessPosition = -1;
+            LaunchEditActivity(tmp_uselessPosition, true);
+        }
+        else {
+            //Notify User Update List from Server
+            NotifyUser("Get tracks from server first!");
+        }
+    }
+    //User Notifier Handler using Toast
+    private void NotifyUser(String MSG){
+        Toast toast = Toast.makeText(MainActivity.this,MSG,Toast.LENGTH_SHORT);
+        toast.show();
     }
     //Launch New Activity to Edit-Add Track
     private void LaunchEditActivity(int position,boolean boolAddTrack){
@@ -76,12 +97,22 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(MainActivity.this ,EditTrackActivity.class);
         // Pass the data to our Activity as there exists no object instance of our EditTrackActivity class,
         // The only easy method to Pass data between activity is Intent,as singleton is not recommended
-        intent.putExtra("TRACK_ID","");
-        intent.putExtra("TRACK_SINGER","");
-        intent.putExtra("TRACK_TITLE","");
-        intent.putExtra("ADD_TRACK",boolAddTrack);
-        intent.putExtra("LIST_POSITION",position);
-        //STARTS THE ACTIVITY FOR RESULT INTENT TO GET THE NEW VALUES
+        if(boolAddTrack) { //Add a new Track
+            intent.putExtra("TRACK_ID", "");
+            intent.putExtra("TRACK_SINGER", "");
+            intent.putExtra("TRACK_TITLE", "");
+            intent.putExtra("ADD_TRACK", true);
+            intent.putExtra("LIST_POSITION", position);
+            //STARTS THE ACTIVITY FOR RESULT INTENT TO GET THE NEW VALUES
+        }
+        else{
+            intent.putExtra("TRACK_ID", Repo_List.get(position).getId());
+            intent.putExtra("TRACK_SINGER", Repo_List.get(position).getName());
+            intent.putExtra("TRACK_TITLE", Repo_List.get(position).getFull_name());
+            intent.putExtra("ADD_TRACK", false);
+            intent.putExtra("LIST_POSITION", position);
+            //STARTS THE ACTIVITY FOR RESULT INTENT TO GET THE NEW VALUES
+        }
         startActivityForResult(intent,MODIFY_TRACK);
 
     }
@@ -118,14 +149,8 @@ public class MainActivity extends AppCompatActivity {
     //Gets the List from GitHub
     public void onButtonGetTracksClick(View view) {
         //Retrofit Implementation on Button Press
-        Button button1 = findViewById(R.id.button);
-        //final TextView textView = findViewById(R.id.textView);
-        Toast toast= Toast.makeText(MainActivity.this,"Button Pressed!",Toast.LENGTH_SHORT);
-        toast.show();
-        //Intent editTrackActivity = new Intent(getApplicationContext(), EditTrackActivity.class);
-        //startActivity(editTrackActivity);
-        //Retrofit Implementation
         //Adding Interceptor
+        try {
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         //Attaching Interceptor to a client
@@ -140,23 +165,36 @@ public class MainActivity extends AppCompatActivity {
 
         GitHubService service = retrofit.create(GitHubService.class);
         Call<List<Repo>> repos = service.listRepos("krunalmiracle");
-        /* Android Doesn't allow synchronous execution of Http Request and so we have to change this*/
-        repos.enqueue(new Callback<List<Repo>>() {
-            @Override
-            public void onResponse(Call<List<Repo>> call, Response<List<Repo>> response) {
-                //textView.setText("Completed!");
-                Toast toast= Toast.makeText(MainActivity.this,"Response Ok",Toast.LENGTH_SHORT);
-                toast.show();
-                 MainActivity.this.Repo_List = response.body();
-                buildRecyclerView();
-            }
+        /* Android Doesn't allow synchronous execution of Http Request and so we must put it in queue*/
 
-            @Override
-            public void onFailure(Call<List<Repo>> call, Throwable t) {
-                Toast toast= Toast.makeText(MainActivity.this,"Error",Toast.LENGTH_SHORT);
-                toast.show();
-            }
-        });
+            repos.enqueue(new Callback<List<Repo>>() {
+                @Override
+                public void onResponse(Call<List<Repo>> call, Response<List<Repo>> response) {
+
+                    //Retrieve the result containing in the body
+                    if (!response.body().isEmpty()) {
+                        // non empty response, Mapping Json via Gson...
+                        NotifyUser("Server Response Ok");
+                        MainActivity.this.Repo_List = response.body();
+                        buildRecyclerView();
+                        //Server has served client so we can now edit the list of Tracks/Repo
+                        aBooleanServedAlready = true;
+                    } else {
+                        // empty response...
+                        NotifyUser("Request Failed!");
+                    }
+
+                }
+
+                @Override
+                public void onFailure(Call<List<Repo>> call, Throwable t) {
+                    NotifyUser("Error,could not retrieve data!");
+                }
+            });
+        }
+        catch(Exception e){
+            NotifyUser("Something bad occured...");
+        }
     }
     //Builds the RecyclerView
     private void buildRecyclerView(){
