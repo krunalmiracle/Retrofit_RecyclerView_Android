@@ -24,16 +24,15 @@ public class EditTrackActivity extends AppCompatActivity {
     public Button AddButton;
     public Button ModifyButton;
     private boolean aBooleanAddTrack= false;
-    private static EditTrackActivity _instance;
     public EditTrackActivity() {
     }
 
     //Updates Edit TextView Fields with new values written
     public void updateEditFields()
     {
-        AuthorTextView.setText(singer);
-        TrackNameTextView.setText(track_title);
-        IdTextView.setText(id);
+        AuthorTextView.setText(this.singer);
+        TrackNameTextView.setText(this.track_title);
+        IdTextView.setText(this.id);
     }
     @Override
     protected void onStart() {
@@ -52,7 +51,7 @@ public class EditTrackActivity extends AppCompatActivity {
         //Getting the Values passed from the Recycler View Adapter class
         Intent intent = getIntent();
         this.id = intent.getStringExtra("TRACK_ID");
-        this.position = intent.getIntExtra("LIST_POSITION",-1);
+        this.position = intent.getIntExtra("LIST_POSITION",0);
         this.track_title = intent.getStringExtra("TRACK_TITLE");
         this.singer = intent.getStringExtra("TRACK_SINGER");
         aBooleanAddTrack = intent.getBooleanExtra("ADD_TRACK",false);

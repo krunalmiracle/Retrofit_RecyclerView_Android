@@ -46,7 +46,8 @@ public class MainActivity extends AppCompatActivity {
     //Inserts Item in List
     public void insertItem(Repo repo){
         Repo_List.add(repo);
-        mAdapter.notifyItemInserted(Repo_List.size());
+        int pos = Repo_List.size()-1;
+        mAdapter.notifyItemInserted(pos);
     }
     //Removes Item from List
     public void removeItem(int position)
@@ -75,9 +76,9 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(MainActivity.this ,EditTrackActivity.class);
         // Pass the data to our Activity as there exists no object instance of our EditTrackActivity class,
         // The only easy method to Pass data between activity is Intent,as singleton is not recommended
-        intent.putExtra("TRACK_ID",Repo_List.get(position).getId());
-        intent.putExtra("TRACK_SINGER",Repo_List.get(position).getName());
-        intent.putExtra("TRACK_TITLE",Repo_List.get(position).getFull_name());
+        intent.putExtra("TRACK_ID","");
+        intent.putExtra("TRACK_SINGER","");
+        intent.putExtra("TRACK_TITLE","");
         intent.putExtra("ADD_TRACK",boolAddTrack);
         intent.putExtra("LIST_POSITION",position);
         //STARTS THE ACTIVITY FOR RESULT INTENT TO GET THE NEW VALUES
@@ -146,9 +147,7 @@ public class MainActivity extends AppCompatActivity {
                 //textView.setText("Completed!");
                 Toast toast= Toast.makeText(MainActivity.this,"Response Ok",Toast.LENGTH_SHORT);
                 toast.show();
-                String res_str = "";
                  MainActivity.this.Repo_List = response.body();
-                //textView.setText(res_str);
                 buildRecyclerView();
             }
 
