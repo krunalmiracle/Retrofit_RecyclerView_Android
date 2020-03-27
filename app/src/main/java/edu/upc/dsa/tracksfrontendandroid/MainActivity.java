@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
     public void insertItem(Repo repo){
         Repo_List.add(repo);
         int pos = Repo_List.size()-1;
-        mAdapter.notifyItemInserted(pos);
+        mAdapter.notifyDataSetChanged();
     }
     //Removes Item from List
     public void removeItem(int position)
@@ -91,11 +91,11 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode==1){
             if(resultCode == RESULT_OK){
-                String tmp_id = data.getStringExtra("TRACK_ID");
-                int tmp_position = data.getIntExtra("LIST_POSITION",-1);
-                String tmp_track_title = data.getStringExtra("TRACK_TITLE");
-                String tmp_singer = data.getStringExtra("TRACK_SINGER");
-                boolean aBoolTmp_addTrack = data.getBooleanExtra("ADD_TRACK",false);
+                String tmp_id = data.getStringExtra("RETRIEVE_TRACK_ID");
+                String tmp_singer = data.getStringExtra("RETRIEVE_TRACK_SINGER");
+                String tmp_track_title = data.getStringExtra("RETRIEVE_TRACK_TITLE");
+                int tmp_position = data.getIntExtra("RETRIEVE_LIST_POSITION",-1);
+                boolean aBoolTmp_addTrack = data.getBooleanExtra("RETRIEVE_ADD_TRACK",false);
                 if(aBoolTmp_addTrack){
                     Repo repo_tmp = new Repo();
                     repo_tmp.setName(tmp_singer);
