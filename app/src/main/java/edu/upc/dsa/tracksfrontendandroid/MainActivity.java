@@ -25,6 +25,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class MainActivity extends AppCompatActivity {
+    // RETROFIT OBJECT
+    Retrofit retrofit;
+    //HTTP INTERCEPTOR
+
+    //TRACKS SERVICE OBJECT
+    TracksService tracksservice;
     //List<Repo> Repo_List;
     List<Track> Track_List;
     private RecyclerView recyclerView;
@@ -46,6 +52,22 @@ public class MainActivity extends AppCompatActivity {
         // use a linear layout manager
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
+        //HTTP &
+        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        //Attaching Interceptor to a client
+        OkHttpClient client = new OkHttpClient().newBuilder().addInterceptor(interceptor).build();
+
+        // Running Retrofit to get result from Local tracks service Interface
+        //Remember when using Local host on windows the IP is 10.0.2.2 for Android
+            //Also added NullOnEmptyConverterFactory when the response from server is empty
+        retrofit = new Retrofit.Builder()
+                .baseUrl("http://10.0.2.2:8080/dsaApp/")
+                .addConverterFactory(new NullOnEmptyConverterFactory())
+                .addConverterFactory(GsonConverterFactory.create())
+                .client(client)
+                .build();
+        tracksservice = retrofit.create(TracksService.class);
     }
     //Inserts Item in List
     public void insertItem(Track track){
@@ -134,35 +156,75 @@ public class MainActivity extends AppCompatActivity {
                 track_tmp.setTitle(tmp_track_title);
                 if(aBoolTmp_addTrack){
                     //Repo repo_tmp = new Repo();
-                    insertItem(track_tmp);
+
+                    //Posting Track to Server
+                    try {
+                        Call<Track> tracks = tracksservice.addTrack(track_tmp);
+                        /* Android Doesn't allow synchronous execution of Http Request and so we must put it in queue*/
+                        tracks.enqueue(new Callback<Track>() {
+                            @Override
+                            public void onResponse(Call<Track> call, Response<Track> response) {
+
+                                //Post Successful
+                                if (response.code() == 201) {
+                                    NotifyUser("Successful");
+                                    //As the response was ok from the server we can add the track on the screen
+                                    insertItem(track_tmp);
+                                } else if(response.code() == 500) { // Validation Error
+                                    NotifyUser("Validation Error!");
+                                }
+                            }
+                            @Override
+                            public void onFailure(Call<Track> call, Throwable t) {
+                                NotifyUser("Error,Post Failed!");
+                            }
+                        });
+                    }
+                    catch(Exception e){
+                        NotifyUser("Exception: " + e.toString());
+                    }
                 }
                 else{
-                    changeItem(tmp_position,track_tmp);
+                    //Changing the Track on Server
+                    try {
+                        Call<Track> tracks = tracksservice.editTrack(track_tmp);
+                        /* Android Doesn't allow synchronous execution of Http Request and so we must put it in queue*/
+                        tracks.enqueue(new Callback<Track>() {
+                            @Override
+                            public void onResponse(Call<Track> call, Response<Track> response) {
+
+                                //Put Successful
+                                if (response.code() == 201) {
+                                    NotifyUser("Successful");
+                                    //As the response was Ok from server, we can have the screen updated
+                                    changeItem(tmp_position,track_tmp);
+                                } else if(response.code() == 404) { // Validation Error
+                                    NotifyUser("Track Not Found!");
+                                }
+                                else{
+                                    NotifyUser("Some other Put Error!");
+                                }
+                            }
+                            @Override
+                            public void onFailure(Call<Track> call, Throwable t) {
+                                NotifyUser("Error,Put Failed!");
+                            }
+                        });
+                    }
+                    catch(Exception e){
+                       NotifyUser("Exception: " + e.toString());
+                    }
                 }
             }
         }
 
     }
 
-    //Gets the List from GitHub
+    //Gets the List of Tracks from LocalHost
     public void onButtonGetTracksClick(View view) {
         //Retrofit Implementation on Button Press
         //Adding Interceptor
         try {
-        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
-        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-        //Attaching Interceptor to a client
-        OkHttpClient client = new OkHttpClient().newBuilder().addInterceptor(interceptor).build();
-
-        // Running Retrofit to get result from Github tracks service Interface
-            //Remember when using Local host on windows the IP is 10.0.2.2 for Android
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://10.0.2.2:8080/dsaApp/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .client(client)
-                .build();
-
-        TracksService tracksservice = retrofit.create(TracksService.class);
         Call<List<Track>> tracks = tracksservice.listTracks("tracks");
         /* Android Doesn't allow synchronous execution of Http Request and so we must put it in queue*/
             tracks.enqueue(new Callback<List<Track>>() {
@@ -181,7 +243,6 @@ public class MainActivity extends AppCompatActivity {
                         // empty response...
                         NotifyUser("Request Failed!");
                     }
-
                 }
 
                 @Override
@@ -207,8 +268,38 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onDeleteClick(int position) {
-                removeItem(position);
+                //Delete the Item
+
+                try {
+                    Call<Track> tracks = tracksservice.deleteTrack(Track_List.get(position).getId());
+                    /* Android Doesn't allow synchronous execution of Http Request and so we must put it in queue*/
+                    tracks.enqueue(new Callback<Track>() {
+                        @Override
+                        public void onResponse(Call<Track> call, Response<Track> response) {
+
+                            //Put Successful
+                            if (response.code() == 201) {
+                                NotifyUser("Successful");
+                                //As the response was Ok from server, we can delete the Track
+                                removeItem(position);
+                            } else if(response.code() == 404) { // Validation Error
+                                NotifyUser("Track Not Found on Server,Unable to delete!");
+                            }
+                            else{
+                                NotifyUser("Some other Delete Error!");
+                            }
+                        }
+                        @Override
+                        public void onFailure(Call<Track> call, Throwable t) {
+                            NotifyUser("Error,Delete Failed!");
+                        }
+                    });
+                }
+                catch(Exception e){
+                    NotifyUser("Exception: " + e.toString());
+                }
             }
         });
     }
 }
+
