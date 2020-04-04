@@ -17,7 +17,7 @@ import java.util.List;
 
 public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
     //Repo List
-    private List<Repo> repoList;
+    private List<Track> TrackList;
     //Intent Request ID
     public static final int TRACK_REQUEST = 1;
     // Adding Listener to call it from Main Activity
@@ -29,7 +29,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
     }
     //for When we call the OnClick Method from main
     public void SetOnItemClickListener(OnItemClickListener listener){
-        mListener =listener ;
+        mListener = listener ;
     }
     // Provide a reference to the views for each data item, Complex data items may need more than one view per item, and
     // you provide access to all the views for a data item in a view holder
@@ -76,9 +76,9 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public MyAdapter(List<Repo> myDataset)
+    public MyAdapter(List<Track> myDataset)
     {
-        repoList = myDataset;
+        TrackList = myDataset;
     }
 
     // Create new views (invoked by the layout manager)
@@ -99,11 +99,11 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
        // final String name = values.get(position);
-        holder.txtId.setText(repoList.get(position).getId());
-        holder.txtRepoName.setText(repoList.get(position).getFull_name());
+        holder.txtId.setText(TrackList.get(position).getId());
+        holder.txtRepoName.setText(TrackList.get(position).getTitle());
     }
     @Override
     public int getItemCount() {
-        return repoList.size();
+        return TrackList.size();
     }
 }

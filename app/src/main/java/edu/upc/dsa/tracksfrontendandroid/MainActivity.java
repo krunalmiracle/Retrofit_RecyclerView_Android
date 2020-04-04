@@ -25,7 +25,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class MainActivity extends AppCompatActivity {
-    List<Repo> Repo_List;
+    //List<Repo> Repo_List;
+    List<Track> Track_List;
     private RecyclerView recyclerView;
     //As we added new methods inside our custom Adapter, we need to create our own type of adapter
     private MyAdapter mAdapter;
@@ -47,27 +48,27 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(layoutManager);
     }
     //Inserts Item in List
-    public void insertItem(Repo repo){
-        if(Repo_List!=null) {
-            Repo_List.add(repo);
+    public void insertItem(Track track){
+        if(Track_List!=null) {
+            Track_List.add(track);
         }
         else
         {
-            Repo_List = new ArrayList<>();
-            Repo_List.add(repo);
+            Track_List = new ArrayList<>();
+            Track_List.add(track);
         }
-        int pos = Repo_List.size()-1;
+        int pos = Track_List.size()-1;
         mAdapter.notifyDataSetChanged();
     }
     //Removes Item from List
     public void removeItem(int position)
     {
-        Repo_List.remove(position);
+        Track_List.remove(position);
         mAdapter.notifyItemRemoved(position);
     }
     //Changes Item in List
-    public void changeItem(int position,Repo repo){
-        Repo_List.set(position,repo);
+    public void changeItem(int position,Track track){
+        Track_List.set(position,track);
         mAdapter.notifyItemChanged(position);
     }
     //Add Track New Activity
@@ -106,9 +107,9 @@ public class MainActivity extends AppCompatActivity {
             //STARTS THE ACTIVITY FOR RESULT INTENT TO GET THE NEW VALUES
         }
         else{
-            intent.putExtra("TRACK_ID", Repo_List.get(position).getId());
-            intent.putExtra("TRACK_SINGER", Repo_List.get(position).getName());
-            intent.putExtra("TRACK_TITLE", Repo_List.get(position).getFull_name());
+            intent.putExtra("TRACK_ID", Track_List.get(position).getId());
+            intent.putExtra("TRACK_SINGER", Track_List.get(position).getSinger());
+            intent.putExtra("TRACK_TITLE", Track_List.get(position).getTitle());
             intent.putExtra("ADD_TRACK", false);
             intent.putExtra("LIST_POSITION", position);
             //STARTS THE ACTIVITY FOR RESULT INTENT TO GET THE NEW VALUES
@@ -127,19 +128,16 @@ public class MainActivity extends AppCompatActivity {
                 String tmp_track_title = data.getStringExtra("RETRIEVE_TRACK_TITLE");
                 int tmp_position = data.getIntExtra("RETRIEVE_LIST_POSITION",-1);
                 boolean aBoolTmp_addTrack = data.getBooleanExtra("RETRIEVE_ADD_TRACK",false);
+                Track track_tmp = new Track();
+                track_tmp.setSinger(tmp_singer);
+                track_tmp.setId(tmp_id);
+                track_tmp.setTitle(tmp_track_title);
                 if(aBoolTmp_addTrack){
-                    Repo repo_tmp = new Repo();
-                    repo_tmp.setName(tmp_singer);
-                    repo_tmp.setId(tmp_id);
-                    repo_tmp.setFull_name(tmp_track_title);
-                    insertItem(repo_tmp);
+                    //Repo repo_tmp = new Repo();
+                    insertItem(track_tmp);
                 }
                 else{
-                    Repo repo_tmp = new Repo();
-                    repo_tmp.setName(tmp_singer);
-                    repo_tmp.setId(tmp_id);
-                    repo_tmp.setFull_name(tmp_track_title);
-                    changeItem(tmp_position,repo_tmp);
+                    changeItem(tmp_position,track_tmp);
                 }
             }
         }
@@ -156,26 +154,26 @@ public class MainActivity extends AppCompatActivity {
         //Attaching Interceptor to a client
         OkHttpClient client = new OkHttpClient().newBuilder().addInterceptor(interceptor).build();
 
-        // Running Retrofit to get result from Github service Interface
+        // Running Retrofit to get result from Github tracks service Interface
+            //Remember when using Local host on windows the IP is 10.0.2.2 for Android
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://api.github.com/")
+                .baseUrl("http://10.0.2.2:8080/dsaApp/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .client(client)
                 .build();
 
-        GitHubService service = retrofit.create(GitHubService.class);
-        Call<List<Repo>> repos = service.listRepos("krunalmiracle");
+        TracksService tracksservice = retrofit.create(TracksService.class);
+        Call<List<Track>> tracks = tracksservice.listTracks("tracks");
         /* Android Doesn't allow synchronous execution of Http Request and so we must put it in queue*/
-
-            repos.enqueue(new Callback<List<Repo>>() {
+            tracks.enqueue(new Callback<List<Track>>() {
                 @Override
-                public void onResponse(Call<List<Repo>> call, Response<List<Repo>> response) {
+                public void onResponse(Call<List<Track>> call, Response<List<Track>> response) {
 
                     //Retrieve the result containing in the body
                     if (!response.body().isEmpty()) {
                         // non empty response, Mapping Json via Gson...
                         NotifyUser("Server Response Ok");
-                        MainActivity.this.Repo_List = response.body();
+                        MainActivity.this.Track_List = response.body();
                         buildRecyclerView();
                         //Server has served client so we can now edit the list of Tracks/Repo
                         aBooleanServedAlready = true;
@@ -187,18 +185,18 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 @Override
-                public void onFailure(Call<List<Repo>> call, Throwable t) {
+                public void onFailure(Call<List<Track>> call, Throwable t) {
                     NotifyUser("Error,could not retrieve data!");
                 }
             });
-        }
+       }
         catch(Exception e){
-            NotifyUser("Something bad occured...");
-        }
+            NotifyUser("Exception: " + e.toString());
+       }
     }
     //Builds the RecyclerView
     private void buildRecyclerView(){
-        mAdapter = new MyAdapter(Repo_List);
+        mAdapter = new MyAdapter(Track_List);
         recyclerView.setAdapter(mAdapter);
         mAdapter.SetOnItemClickListener(new MyAdapter.OnItemClickListener() {
             @Override
